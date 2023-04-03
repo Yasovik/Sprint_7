@@ -1,5 +1,6 @@
 package ru.yandex.practicum.data;
 
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.given;
@@ -25,6 +26,7 @@ public class DataCourier {
     protected String courierAuthorizatonData = "{\"login\": \"" + courierLogin + "\", \"password\": \"" + courierPassword + "\"}";
     protected String createOrderApi = "/api/v1/orders";
 
+    @Step("Удаление курьера")
     public void deleteCourier() {
         int id = given()
                 .header(headersRequestContentType, headersRequestApplication)
@@ -45,17 +47,6 @@ public class DataCourier {
                         .body(json)
                         .when()
                         .delete(deleteCourierApi + id);
-        System.out.println("Курьер удален");
-    }
-
-    public void createNewCourier() {
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(courierCreateData)
-                        .when()
-                        .post(createCourierApi);
     }
 
 }

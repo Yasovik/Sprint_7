@@ -1,284 +1,91 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
 import ru.yandex.practicum.data.DataCourier;
 import ru.yandex.practicum.data.DataSerialization;
+import ru.yandex.practicum.data.api.CourierCreate;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 
 public class CourierCreateTest extends DataCourier {
+    CourierCreate courierCreate = new CourierCreate();
+
     @Before
     public void setUp() {
         RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru";
     }
 
     @Test
+    @DisplayName("Создание нового курьера")
     public void createNewCourierTest() {
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(courierCreateData)
-                        .when()
-                        .post(createCourierApi);
-        response.then().assertThat().body("ok", equalTo(true))
-                .and()
-                .statusCode(201);
-        System.out.println(response.body().asString());
-    }
-
-    @Test
-    public void doubleCreateCourierTest() {
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(courierCreateData)
-                        .when()
-                        .post(createCourierApi);
-        Response responseDouble =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(courierCreateData)
-                        .when()
-                        .post(createCourierApi);
+        Response courierCreateResponse = courierCreate.CourierCreate(courierCreateData);
+        courierCreateResponse.then().statusCode(201).assertThat().body("ok", equalTo(true));
         deleteCourier();
-        responseDouble.then().assertThat().body("message", equalTo("Этот логин уже используется"))
-                .and()
-                .statusCode(409);
-        System.out.println(response.body().asString());
-
     }
 
     @Test
+    @DisplayName("Создание 2х одинаковых курьеров")
+    public void doubleCreateCourierTest() {
+        Response courierCreateResponse = courierCreate.CourierCreate(courierCreateData);
+        courierCreateResponse.then().statusCode(201).assertThat().body("ok", equalTo(true));
+        Response courierCreateResponseDouble = courierCreate.CourierCreate(courierCreateData);
+        deleteCourier();
+        courierCreateResponseDouble.then().statusCode(409).assertThat().body("message", equalTo("Этот логин уже используется"));
+    }
+
+    @Test
+    @DisplayName("Создание курьера без логина")
     public void createCourierWithoutLoginTest() {
         DataSerialization data = new DataSerialization("", courierPassword, courierFirstName);
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(createCourierApi);
-        response.then().assertThat().body("code", equalTo(400))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
+        Response createCourierWithoutLoginTest = courierCreate.CourierCreate(data);
+        createCourierWithoutLoginTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
+    @DisplayName("Создание курьера без пароля")
     public void createCourierWithoutPasswordTest() {
         DataSerialization data = new DataSerialization(courierLogin, "", courierFirstName);
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(createCourierApi);
-        response.then().assertThat().body("code", equalTo(400))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
+        Response createCourierWithoutPasswordTest = courierCreate.CourierCreate(data);
+        createCourierWithoutPasswordTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
+    @DisplayName("Создание курьера без фамилии")
     public void createCourierWithoutFirstNameTest() {
         DataSerialization data = new DataSerialization(courierLogin, courierPassword, "");
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(createCourierApi);
+        Response createCourierWithoutFirstNameTest = courierCreate.CourierCreate(data);
         deleteCourier();
-        response.then().assertThat().body("code", equalTo(400))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
+        createCourierWithoutFirstNameTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
+    @DisplayName("Создание курьера без секции фамилия")
     public void createCourierWithoutSectionFirstNameTest() {
         DataSerialization data = new DataSerialization(courierLogin, courierPassword, null);
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(createCourierApi);
+        Response createCourierWithoutSectionFirstNameTest = courierCreate.CourierCreate(data);
         deleteCourier();
-        response.then().assertThat().body("code", equalTo(400))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
+        createCourierWithoutSectionFirstNameTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
+    @DisplayName("Создание курьера без секции пароль")
     public void createCourierWithoutSectionPasswordTest() {
         DataSerialization data = new DataSerialization(courierLogin, null, courierFirstName);
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(createCourierApi);
-        response.then().assertThat().body("code", equalTo(400))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
+        Response createCourierWithoutSectionPasswordTest = courierCreate.CourierCreate(data);
+        createCourierWithoutSectionPasswordTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
-    public void createCourierWithoutSectionLoginTest() {
+    @DisplayName("Создание курьера без секции пароль")
+    public void createCourierWithoutSectionLoginTest1() {
         DataSerialization data = new DataSerialization(null, courierPassword, courierFirstName);
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(createCourierApi);
-        response.then().assertThat().body("code", equalTo(400))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
+        Response createCourierWithoutSectionLoginTest = courierCreate.CourierCreate(data);
+        createCourierWithoutSectionLoginTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
-    @Test
-    public void courierAuthorization() {
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(courierAuthorizatonData)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("id", notNullValue())
-                .and()
-                .statusCode(200);
-        System.out.println(response.body().asString());
-        deleteCourier();
 
-    }
-
-    @Test
-    public void loginCourierWithoutLogin() {
-        DataSerialization data = new DataSerialization("", courierPassword);
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("message", equalTo("Недостаточно данных для входа"))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
-        deleteCourier();
-
-    }
-
-    @Test
-    public void loginCourierWithoutPassword() {
-        DataSerialization data = new DataSerialization(courierLogin, "");
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("message", equalTo("Недостаточно данных для входа"))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
-        deleteCourier();
-    }
-
-    @Test
-    public void loginCourierWithoutSectionLogin() {
-        DataSerialization data = new DataSerialization(null, courierPassword);
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("message", equalTo("Недостаточно данных для входа"))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
-        deleteCourier();
-
-    }
-
-    @Test
-    public void loginCourierWithoutSectionPassword() {
-        DataSerialization data = new DataSerialization(courierLogin, null);
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("message", equalTo("Недостаточно данных для входа"))
-                .and()
-                .statusCode(400);
-        System.out.println(response.body().asString());
-        deleteCourier();
-    }
-
-    @Test
-    public void authorizationCourierWithIncorrectLoginTest() {
-        DataSerialization data = new DataSerialization(courierLogin + "qwe", courierPassword);
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
-                .and()
-                .statusCode(404);
-        System.out.println(response.body().asString());
-        deleteCourier();
-    }
-
-    @Test
-    public void authorizationCourierWithIncorrectPasswordTest() {
-        DataSerialization data = new DataSerialization(courierLogin, courierPassword + "55");
-        createNewCourier();
-        Response response =
-                given()
-                        .header(headersRequestContentType, headersRequestApplication)
-                        .and()
-                        .body(data)
-                        .when()
-                        .post(loginCourierApi);
-        response.then().assertThat().body("message", equalTo("Учетная запись не найдена"))
-                .and()
-                .statusCode(404);
-        System.out.println(response.body().asString());
-        deleteCourier();
-    }
 }
 
 
