@@ -123,4 +123,5 @@ public class DataSerialization {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
 }

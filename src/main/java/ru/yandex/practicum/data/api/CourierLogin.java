@@ -8,7 +8,7 @@ import static io.restassured.RestAssured.given;
 
 public class CourierLogin extends DataCourier {
     @Step("Авторизация курьера")
-    public Response CourierLogin(Object body) {
+    public Response courierLogin(Object body) {
         return given()
                 .header(headersRequestContentType, headersRequestApplication)
                 .and()
@@ -16,4 +16,5 @@ public class CourierLogin extends DataCourier {
                 .when().log().all()
                 .post(loginCourierApi);
     }
+
 }

@@ -8,7 +8,7 @@ import static io.restassured.RestAssured.given;
 
 public class CreateOrders extends DataCourier {
     @Step("Создание заказа")
-    public Response CreateOrder(Object body) {
+    public Response createOrder(Object body) {
         return given()
                 .header(headersRequestContentType, headersRequestApplication)
                 .and()
@@ -18,7 +18,7 @@ public class CreateOrders extends DataCourier {
     }
 
     @Step("Получение заказа")
-    public Response GetOrder(Object body) {
+    public Response getOrder(Object body) {
         return given()
                 .header(headersRequestContentType, headersRequestApplication)
                 .and()
@@ -26,5 +26,6 @@ public class CreateOrders extends DataCourier {
                 .when().log().all()
                 .get(createOrderApi);
     }
+
 }
 

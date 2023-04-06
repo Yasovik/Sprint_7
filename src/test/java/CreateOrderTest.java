@@ -10,7 +10,7 @@ import ru.yandex.practicum.data.api.CreateOrders;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class CreateOrderTest extends DataCourier {
-    CreateOrders createOrders = new CreateOrders();
+    private final CreateOrders createOrders = new CreateOrders();
 
     @Before
     public void setUp() {
@@ -21,7 +21,7 @@ public class CreateOrderTest extends DataCourier {
     @DisplayName("Создание заказа без выбора цвета")
     public void createOrderWithoutColorTest() {
         DataSerialization data = new DataSerialization(clientFirstname, clientLastName, clientAddress, clientMetroStation, clientPhone, clientRentTime, clientDeliveryDate, clientComment, new String[]{""});
-        Response createOrderWithoutColorTestResponse = createOrders.CreateOrder(data);
+        Response createOrderWithoutColorTestResponse = createOrders.createOrder(data);
         createOrderWithoutColorTestResponse.then().log().all().statusCode(201).assertThat().body("track", notNullValue());
     }
 
@@ -29,7 +29,7 @@ public class CreateOrderTest extends DataCourier {
     @DisplayName("Создание заказа с выбором двух цветов")
     public void createOrderWithTwoColorTest() {
         DataSerialization data = new DataSerialization(clientFirstname, clientLastName, clientAddress, clientMetroStation, clientPhone, clientRentTime, clientDeliveryDate, clientComment, new String[]{"BLACK", "GREY"});
-        Response createOrderWithTwoColorTestResponse = createOrders.CreateOrder(data);
+        Response createOrderWithTwoColorTestResponse = createOrders.createOrder(data);
         createOrderWithTwoColorTestResponse.then().log().all().statusCode(201).assertThat().body("track", notNullValue());
     }
 
@@ -37,7 +37,7 @@ public class CreateOrderTest extends DataCourier {
     @DisplayName("Создание заказа с выбором черного цвета")
     public void createOrderWithColorBlackTest() {
         DataSerialization data = new DataSerialization(clientFirstname, clientLastName, clientAddress, clientMetroStation, clientPhone, clientRentTime, clientDeliveryDate, clientComment, new String[]{"BLACK"});
-        Response createOrderWithColorBlackTestResponse = createOrders.CreateOrder(data);
+        Response createOrderWithColorBlackTestResponse = createOrders.createOrder(data);
         createOrderWithColorBlackTestResponse.then().log().all().statusCode(201).assertThat().body("track", notNullValue());
     }
 
@@ -45,9 +45,8 @@ public class CreateOrderTest extends DataCourier {
     @DisplayName("Проверка списка заказов")
     public void orderListTest() {
         CreateOrders getOrders = new CreateOrders();
-        Response CreateOrdersResponse = getOrders.GetOrder("");
+        Response CreateOrdersResponse = getOrders.getOrder("");
         CreateOrdersResponse.then().log().all().statusCode(200).assertThat().body("orders.id", notNullValue());
     }
-
 
 }

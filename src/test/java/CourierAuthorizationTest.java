@@ -13,8 +13,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class CourierAuthorizationTest extends DataCourier {
-    CourierCreate courierCreate = new CourierCreate();
-    CourierLogin courierLogins = new CourierLogin();
+    private final CourierCreate courierCreate = new CourierCreate();
+    private final CourierLogin courierLogins = new CourierLogin();
 
     @Before
     public void setUp() {
@@ -24,8 +24,8 @@ public class CourierAuthorizationTest extends DataCourier {
     @Test
     @DisplayName("Авторизация существующего пользователя")
     public void courierAuthorization() {
-        courierCreate.CourierCreate(courierCreateData);
-        Response courierLoginResponse = courierLogins.CourierLogin(courierAuthorizatonData);
+        courierCreate.courierCreate(courierCreateData);
+        Response courierLoginResponse = courierLogins.courierLogin(courierAuthorizatonData);
         courierLoginResponse.then().statusCode(200).assertThat().body("id", notNullValue());
     }
 
@@ -33,8 +33,8 @@ public class CourierAuthorizationTest extends DataCourier {
     @DisplayName("Авторизация курьера без логина")
     public void loginCourierWithoutLogin() {
         DataSerialization data = new DataSerialization("", courierPassword);
-        courierCreate.CourierCreate(courierCreateData);
-        Response authorizationCourierWithoutLoginTest = courierLogins.CourierLogin(data);
+        courierCreate.courierCreate(courierCreateData);
+        Response authorizationCourierWithoutLoginTest = courierLogins.courierLogin(data);
         authorizationCourierWithoutLoginTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для входа"));
     }
 
@@ -42,8 +42,8 @@ public class CourierAuthorizationTest extends DataCourier {
     @DisplayName("Авторизация курьера без пароля")
     public void loginCourierWithoutPassword() {
         DataSerialization data = new DataSerialization(courierLogin, "");
-        courierCreate.CourierCreate(courierCreateData);
-        Response authorizationCourierWithoutLoginTest = courierLogins.CourierLogin(data);
+        courierCreate.courierCreate(courierCreateData);
+        Response authorizationCourierWithoutLoginTest = courierLogins.courierLogin(data);
         authorizationCourierWithoutLoginTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для входа"));
     }
 
@@ -51,8 +51,8 @@ public class CourierAuthorizationTest extends DataCourier {
     @DisplayName("Авторизация курьера без секции логина")
     public void loginCourierWithoutSectionLogin() {
         DataSerialization data = new DataSerialization(null, courierPassword);
-        courierCreate.CourierCreate(courierCreateData);
-        Response authorizationCourierWithoutLoginTest = courierLogins.CourierLogin(data);
+        courierCreate.courierCreate(courierCreateData);
+        Response authorizationCourierWithoutLoginTest = courierLogins.courierLogin(data);
         authorizationCourierWithoutLoginTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для входа"));
     }
 
@@ -60,8 +60,8 @@ public class CourierAuthorizationTest extends DataCourier {
     @DisplayName("Авторизация курьера без секции пароль в запросе")
     public void loginCourierWithoutSectionPassword() {
         DataSerialization data = new DataSerialization(courierLogin, null);
-        courierCreate.CourierCreate(courierCreateData);
-        Response authorizationCourierWithoutLoginTest = courierLogins.CourierLogin(data);
+        courierCreate.courierCreate(courierCreateData);
+        Response authorizationCourierWithoutLoginTest = courierLogins.courierLogin(data);
         authorizationCourierWithoutLoginTest.then().log().all().statusCode(400).assertThat().body("message", equalTo("Недостаточно данных для входа"));
     }
 
@@ -69,8 +69,8 @@ public class CourierAuthorizationTest extends DataCourier {
     @DisplayName("Авторизация курьера с некорректным логином")
     public void authorizationCourierWithIncorrectLoginTest() {
         DataSerialization data = new DataSerialization(courierLogin + "qwe", courierPassword);
-        courierCreate.CourierCreate(courierCreateData);
-        Response authorizationCourierWithoutLoginTest = courierLogins.CourierLogin(data);
+        courierCreate.courierCreate(courierCreateData);
+        Response authorizationCourierWithoutLoginTest = courierLogins.courierLogin(data);
         authorizationCourierWithoutLoginTest.then().log().all().statusCode(404).assertThat().body("message", equalTo("Учетная запись не найдена"));
     }
 
@@ -78,13 +78,14 @@ public class CourierAuthorizationTest extends DataCourier {
     @DisplayName("Авторизация курьера с некорректным паролем")
     public void authorizationCourierWithIncorrectPasswordTest() {
         DataSerialization data = new DataSerialization(courierLogin, courierPassword + "55");
-        courierCreate.CourierCreate(courierCreateData);
-        Response authorizationCourierWithoutLoginTest = courierLogins.CourierLogin(data);
+        courierCreate.courierCreate(courierCreateData);
+        Response authorizationCourierWithoutLoginTest = courierLogins.courierLogin(data);
         authorizationCourierWithoutLoginTest.then().log().all().statusCode(404).assertThat().body("message", equalTo("Учетная запись не найдена"));
     }
 
     @After
     public void clear() {
-        deleteCourier();
+        deleteCourier(courierLogin, courierPassword);
     }
+
 }
